@@ -1,0 +1,25 @@
+{
+  "name": "gift-list-api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cross-env ENV_FILE=production node -r ./env -r module-alias/register ./start.js",
+    "start-dev": "nodemon --config \"./nodemon.json\""
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "cross-env": "^6.0.3",
+    "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
+    "express": "~4.16.1",
+    "module-alias": "^2.2.2",
+    "http-status-codes": "^1.4.0",
+    "morgan": "~1.9.1",
+    "mysql2": "^2.0.0",
+    "sequelize": "^5.21.2",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  }
+}
