@@ -5,9 +5,10 @@
   "scripts": {
     "start": "cross-env ENV_FILE=production node -r ./env -r module-alias/register ./start.js",
     "start-dev": "nodemon --config \"./nodemon.json\"",
-    "gf": "cross-env ENV_FILE=development node -r ./env -r module-alias/register ./generate-fixtures.js"
+    "gf": "cross-env ENV_FILE=development node -r ./env -r module-alias/register ./generateFixtures.js"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
     "cross-env": "^6.0.3",
     "debug": "~2.6.9",
