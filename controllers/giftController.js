@@ -1,4 +1,8 @@
-const { handleError, HttpError } = require("../libs/errorHandler");
+const {
+  handleError,
+  getValidationErrors,
+  HttpError
+} = require("../libs/errorHandler");
 const Gift = require("../models/gift");
 
 exports.getGifts = async (req, res, next) => {
@@ -29,6 +33,11 @@ exports.getGift = async (req, res, next) => {
  * @param req.body.recipientId Integer The id of the recipient
  */
 exports.createGift = async (req, res, next) => {
+  const validationError = getValidationErrors(req);
+  if (validationError) {
+    return next(validationError);
+  }
+  
   try {
     const createdGift = await Gift.create({
       name: req.body.name,

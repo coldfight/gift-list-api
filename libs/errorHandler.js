@@ -1,5 +1,32 @@
+const { validationResult } = require("express-validator/check");
 const HttpStatus = require("http-status-codes");
 const logger = require("../libs/logger");
+
+class HttpError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = HttpStatus.NOT_FOUND;
+  }
+}
+exports.HttpError = HttpError;
+
+class BadRequestError extends Error {
+  constructor(message, data) {
+    super(message);
+    this.statusCode = HttpStatus.BAD_REQUEST;
+    this.data = data;
+  }
+}
+exports.BadRequestError = BadRequestError;
+
+class UnprocessableEntityError extends Error {
+  constructor(message, data) {
+    super(message);
+    this.statusCode = HttpStatus.UNPROCESSABLE_ENTITY;
+    this.data = data;
+  }
+}
+exports.UnprocessableEntityError = UnprocessableEntityError;
 
 exports.handleError = err => {
   logger.error(err.message);
@@ -12,16 +39,14 @@ exports.handleError = err => {
   return error;
 };
 
-exports.HttpError = class HttpError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = HttpStatus.NOT_FOUND;
+exports.getValidationErrors = req => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new UnprocessableEntityError(
+      "Validation failed.",
+      errors.array()
+    );
+    return error;
   }
-};
-
-exports.BadRequestError = class BadRequestError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = HttpStatus.BAD_REQUEST;
-  }
+  return false;
 };

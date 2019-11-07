@@ -1,4 +1,8 @@
-const { handleError, HttpError } = require("../libs/errorHandler");
+const {
+  handleError,
+  getValidationErrors,
+  HttpError
+} = require("../libs/errorHandler");
 const Recipient = require("../models/recipient");
 
 exports.getRecipients = async (req, res, next) => {
@@ -28,6 +32,11 @@ exports.getRecipient = async (req, res, next) => {
  * @param req.body.name String The name of the recipient
  */
 exports.createRecipient = async (req, res, next) => {
+  const validationError = getValidationErrors(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
   try {
     const createdRecipient = await Recipient.create({
       name: req.body.name
