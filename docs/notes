@@ -1,0 +1,9 @@
+If you want to include a related model into 
+const gifts = await Gift.findAll({
+  include: [
+    {
+      model: Recipient,
+      attributes: ["id", "name", "spendLimit"]
+    }
+  ]
+});

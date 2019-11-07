@@ -1,6 +1,9 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../libs/database");
 
+/**
+ * The person that the gift is for
+ */
 const Recipient = sequelize.define("recipient", {
   id: {
     type: Sequelize.INTEGER,
@@ -8,13 +11,17 @@ const Recipient = sequelize.define("recipient", {
     allowNull: false,
     primaryKey: true
   },
+  name: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
   spendLimit: {
     type: Sequelize.INTEGER,
     allowNull: true
   },
   completed: {
     type: Sequelize.BOOLEAN,
-    default: false
+    defaultValue: false
   }
 });
 

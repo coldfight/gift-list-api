@@ -18,7 +18,7 @@ const Gift = sequelize.define("gift", {
   },
   bought: {
     type: Sequelize.BOOLEAN,
-    default: false
+    defaultValue: false
   }
 });
 

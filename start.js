@@ -1,14 +1,13 @@
 const app = require("./server");
 const logger = require("./libs/logger");
 const sequelize = require("./libs/database");
-const registerModelAssociations = require("./libs/registerModelAssociations");
+require("./libs/registerModelAssociations");
 
 // ssh pi@192.168.2.45 -p 22022 -L 3306:127.0.0.1:3306 -N
 let server;
 sequelize
-  // .sync({ force: true })
   .sync()
-  .then(result => {
+  .then(() => {
     const port = normalizePort(process.env.PORT || "3000");
     server = app.listen(port);
     server.on("error", onError);
