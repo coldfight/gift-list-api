@@ -28,6 +28,17 @@ class UnprocessableEntityError extends Error {
 }
 exports.UnprocessableEntityError = UnprocessableEntityError;
 
+
+class UnauthorizedError extends Error {
+  constructor(message, data) {
+    super(message);
+    this.statusCode = HttpStatus.UNAUTHORIZED;
+    this.data = data;
+  }
+}
+exports.UnauthorizedError = UnauthorizedError;
+
+
 exports.handleError = err => {
   logger.error(err.message);
   if (err.statusCode) {

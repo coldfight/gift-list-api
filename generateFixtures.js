@@ -16,12 +16,6 @@ sequelize
     });
   })
   .then(user => {
-    user.isPasswordValid("password").then(isValid => {
-      console.log({isValid});
-    });
-    user.isPasswordValid("passwords").then(isValid => {
-      console.log({isValid});
-    });
     return Promise.all([
       Recipient.create({ name: "Brother In Law", userId: user.id }),
       Recipient.create({ name: "Sister", userId: user.id }),

@@ -8,12 +8,16 @@ module.exports = {
       .isEmpty()
       .withMessage("Please enter a username.")
       .custom((value, { req }) => {
-        return User.findOne({ where: { username: value } }).then(user => {
-          if (user) {
-            return Promise.reject("User already exists.");
-          }
-          return true;
-        });
+        return User.findOne({ where: { username: value } })
+          .then(user => {
+            if (user) {
+              return Promise.reject("User already exists.");
+            }
+            return true;
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
       }),
     body("password", "Your password must be at least 6 characters long")
       .trim()
