@@ -1,3 +1,4 @@
+const Sequelize = require("sequelize");
 const jwt = require("jsonwebtoken");
 const { handleError, getValidationErrors } = require("../libs/errorHandler");
 const User = require("../models/user");
@@ -24,18 +25,18 @@ exports.signup = async (req, res, next) => {
       password
     });
     const savedUser = await user.save();
-    const token = generateJwt(user.username, user.id);
-    let refreshToken;
+    const jwtToken = generateJwt(user.username, user.id);
+    let refreshTokenRecord;
     if (req.body.refresh) {
-      refreshToken = await RefreshToken.create({
+      refreshTokenRecord = await RefreshToken.create({
         userId: user.id
       });
     }
 
     res.status(201).json({
-      token,
+      token: jwtToken,
       userId: savedUser.id,
-      refreshToken: refreshToken ? refreshToken.token : undefined
+      refreshToken: refreshTokenRecord ? refreshTokenRecord.token : undefined
     });
   } catch (err) {
     next(handleError(err));
@@ -67,19 +68,80 @@ exports.login = async (req, res, next) => {
       return next(new UnauthorizedError("Incorrect credentials"));
     }
 
-    const token = generateJwt(user.username, user.id);
-    let refreshToken;
+    const jwtToken = generateJwt(user.username, user.id);
+    let refreshTokenRecord;
     if (req.body.refresh) {
-      refreshToken = await RefreshToken.create({
+      refreshTokenRecord = await RefreshToken.create({
         userId: user.id
       });
     }
 
     res.status(200).json({
-      token,
+      token: jwtToken,
       userId: user.id,
-      refreshToken: refreshToken ? refreshToken.token : undefined
+      refreshToken: refreshTokenRecord ? refreshTokenRecord.token : undefined
     });
+  } catch (err) {
+    next(handleError(err));
+  }
+};
+
+/**
+ * @param req.body.username String
+ * @param req.body.refreshToken String
+ */
+exports.token = async (req, res, next) => {
+  const validationError = getValidationErrors(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { username, refreshToken } = req.body;
+
+  try {
+    const refreshTokenRecord = await RefreshToken.getValidRefreshTokenForUser(
+      refreshToken,
+      username
+    );
+
+    if (!refreshTokenRecord) {
+      return next(new UnauthorizedError("Incorrect credentials"));
+    }
+
+    const jwtToken = generateJwt(
+      refreshTokenRecord.user.username,
+      refreshTokenRecord.user.id
+    );
+    res.json({ token: jwtToken, userId: refreshTokenRecord.user.id });
+  } catch (err) {
+    next(handleError(err));
+  }
+};
+
+/**
+ * @param req.body.username String
+ * @param req.body.refreshToken String
+ */
+exports.deleteToken = async (req, res, next) => {
+  const validationError = getValidationErrors(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { refreshToken } = req.body;
+
+  try {
+    const refreshTokenRecord = await RefreshToken.getValidRefreshTokenForUser(
+      refreshToken,
+      req.user.username
+    );
+
+    if (!refreshTokenRecord) {
+      return next(new UnauthorizedError("Incorrect credentials"));
+    }
+
+    await refreshTokenRecord.destroy();
+    res.status(204).json();
   } catch (err) {
     next(handleError(err));
   }

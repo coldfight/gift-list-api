@@ -32,5 +32,21 @@ module.exports = {
       .not()
       .isEmpty()
       .withMessage("Please enter your password.")
+  ],
+  token: [
+    body("username")
+      .not()
+      .isEmpty()
+      .withMessage("Username is required."),
+    body("refreshToken")
+      .not()
+      .isEmpty()
+      .withMessage("Refresh token is required.")
+  ],
+  deleteToken: [
+    body("refreshToken")
+      .not()
+      .isEmpty()
+      .withMessage("Refresh token is required.")
   ]
 };
