@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const logger = require("../libs/logger");
-const { UnauthorizedError } = require("../libs/errorHandler");
+const UnauthorizedError = require("../libs/errors/unauthorizedError");
 const User = require("../models/user");
 
 module.exports = async (req, res, next) => {
@@ -15,7 +15,7 @@ module.exports = async (req, res, next) => {
   try {
     decodedToken = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
-    logger.error(err.message);
+    logger.error(err.stack);
     err.statusCode = 500;
     return next(err);
   }
@@ -34,7 +34,7 @@ module.exports = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    logger.error(err.message);
+    logger.error(err.stack);
     return next(new UnauthorizedError("Not authenticated"));
   }
 };

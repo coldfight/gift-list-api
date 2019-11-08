@@ -1,52 +1,16 @@
-const { validationResult } = require("express-validator/check");
+const { validationResult } = require("express-validator");
 const HttpStatus = require("http-status-codes");
 const logger = require("../libs/logger");
-
-class HttpError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = HttpStatus.NOT_FOUND;
-  }
-}
-exports.HttpError = HttpError;
-
-class BadRequestError extends Error {
-  constructor(message, data) {
-    super(message);
-    this.statusCode = HttpStatus.BAD_REQUEST;
-    this.data = data;
-  }
-}
-exports.BadRequestError = BadRequestError;
-
-class UnprocessableEntityError extends Error {
-  constructor(message, data) {
-    super(message);
-    this.statusCode = HttpStatus.UNPROCESSABLE_ENTITY;
-    this.data = data;
-  }
-}
-exports.UnprocessableEntityError = UnprocessableEntityError;
-
-
-class UnauthorizedError extends Error {
-  constructor(message, data) {
-    super(message);
-    this.statusCode = HttpStatus.UNAUTHORIZED;
-    this.data = data;
-  }
-}
-exports.UnauthorizedError = UnauthorizedError;
-
+const UnprocessableEntityError = require("../libs/errors/unprocessableEntityError");
 
 exports.handleError = err => {
-  logger.error(err.message);
+  logger.error(err.stack);
   if (err.statusCode) {
     return err;
   }
 
   const error = new Error("There was an issue pulling the list of gifts.");
-  error.statusCode = 500;
+  error.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
   return error;
 };
 

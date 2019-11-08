@@ -1,17 +1,14 @@
-const {
-  handleError,
-  getValidationErrors,
-  HttpError
-} = require("../libs/errorHandler");
+const { handleError, getValidationErrors } = require("../libs/errorHandler");
 const Gift = require("../models/gift");
+const Recipient = require("../models/recipient");
+const HttpError = require("../libs/errors/httpError");
 
 exports.getGifts = async (req, res, next) => {
-  const authenticatedUser = req.user;
   try {
     // Only get gifts related to the currently authenticated user.
     const gifts = await Gift.findAll({
       where: {
-        userId: authenticatedUser.id
+        userId: req.user.id
       }
     });
     res.json({ gifts });
@@ -22,13 +19,12 @@ exports.getGifts = async (req, res, next) => {
 
 exports.getGift = async (req, res, next) => {
   const giftId = req.params.id;
-  const authenticatedUser = req.user;
 
   try {
     const gift = await Gift.findOne({
       where: {
         id: giftId,
-        userId: authenticatedUser.id
+        userId: req.user.id
       }
     });
     if (!gift) {
@@ -49,15 +45,23 @@ exports.createGift = async (req, res, next) => {
   if (validationError) {
     return next(validationError);
   }
-  const authenticatedUser = req.user;
+
   const { name, recipientId } = req.body;
   try {
-    // @todo: you can only set the recipientId IF the recipient's userId is the authenticatedUser.id
+    // you can only set the recipientId IF the recipient's userId
+    // is the authenticated user's id (req.user.id)
+    const recipient = await Recipient.findOne({
+      where: { id: recipientId, userId: req.user.id }
+    });
+
+    if (!recipient) {
+      return next(new HttpError("Recipient does not exist"));
+    }
 
     const createdGift = await Gift.create({
       name,
       recipientId,
-      userId: authenticatedUser.id
+      userId: req.user.id
     });
 
     res.json({

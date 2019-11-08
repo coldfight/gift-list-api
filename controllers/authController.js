@@ -1,10 +1,7 @@
 const jwt = require("jsonwebtoken");
-const {
-  handleError,
-  getValidationErrors,
-  UnauthorizedError
-} = require("../libs/errorHandler");
+const { handleError, getValidationErrors } = require("../libs/errorHandler");
 const User = require("../models/user");
+const UnauthorizedError = require("../libs/errors/unauthorizedError");
 
 exports.signup = async (req, res, next) => {
   const validationError = getValidationErrors(req);
@@ -61,8 +58,8 @@ exports.login = async (req, res, next) => {
     res.status(200).json({ token, userId: user.id });
 
     // @todo: refer to: https://solidgeargroup.com/refresh-token-with-jwt-authentication-node-js/
-    // Here, we should also generate a refresh token. we're using this 
-    // in a mobile app so it makes sense to be able to request a new 
+    // Here, we should also generate a refresh token. we're using this
+    // in a mobile app so it makes sense to be able to request a new
     // access(jwt) token without re-entering the credentials
   } catch (err) {
     next(handleError(err));

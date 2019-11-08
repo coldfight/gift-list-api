@@ -3,7 +3,7 @@ const logger = require("morgan");
 const cors = require("cors");
 
 const baseRouter = require("./routes");
-const errorHandlers = require("./middleware/errorHandlers");
+const { notFound, fallback } = require("./middleware/errors");
 
 const app = express();
 
@@ -14,7 +14,7 @@ app.use(cors());
 
 app.use("/api", baseRouter);
 
-app.use(errorHandlers.notFound);
-app.use(errorHandlers.fallback);
+app.use(notFound);
+app.use(fallback);
 
 module.exports = app;
