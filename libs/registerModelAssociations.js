@@ -2,6 +2,10 @@
 const Gift = require("../models/gift");
 const Recipient = require("../models/recipient");
 const User = require("../models/user");
+const RefreshToken = require("../models/refreshToken");
+
+// User is the currently authenticated user. Where as
+// Recipient is the peron who the gift belongs to
 
 Gift.belongsTo(Recipient, {
   constraints: true,
@@ -33,6 +37,14 @@ Recipient.belongsTo(User, {
 });
 User.hasMany(Recipient);
 
-// Eventually We'll be adding a User. User =/= Recipient.
-// User is the currently authenticated user. Where as Recipient is the peron who the gift belongs to
+RefreshToken.belongsTo(User, {
+  constraints: true,
+  foreignKey: {
+    field: "userId",
+    allowNull: false
+  },
+  onDelete: "CASCADE"
+});
+User.hasMany(RefreshToken);
+
 module.exports = () => {};

@@ -1,8 +1,14 @@
 const jwt = require("jsonwebtoken");
 const { handleError, getValidationErrors } = require("../libs/errorHandler");
 const User = require("../models/user");
+const RefreshToken = require("../models/refreshToken");
 const UnauthorizedError = require("../libs/errors/unauthorizedError");
 
+/**
+ * @param req.body.username String
+ * @param req.body.password String
+ * @param req.body.refresh boolean If set to true, the response will also return a refresh token
+ */
 exports.signup = async (req, res, next) => {
   const validationError = getValidationErrors(req);
   if (validationError) {
@@ -18,13 +24,29 @@ exports.signup = async (req, res, next) => {
       password
     });
     const savedUser = await user.save();
-    // Should return a JWT token and authenticate at this point too
-    res.status(201).json({ message: "User created!", userId: savedUser.id });
+    const token = generateJwt(user.username, user.id);
+    let refreshToken;
+    if (req.body.refresh) {
+      refreshToken = await RefreshToken.create({
+        userId: user.id
+      });
+    }
+
+    res.status(201).json({
+      token,
+      userId: savedUser.id,
+      refreshToken: refreshToken ? refreshToken.token : undefined
+    });
   } catch (err) {
     next(handleError(err));
   }
 };
 
+/**
+ * @param req.body.username String
+ * @param req.body.password String
+ * @param req.body.refresh boolean If set to true, the response will also return a refresh token
+ */
 exports.login = async (req, res, next) => {
   const validationError = getValidationErrors(req);
   if (validationError) {
@@ -45,23 +67,26 @@ exports.login = async (req, res, next) => {
       return next(new UnauthorizedError("Incorrect credentials"));
     }
 
-    const token = jwt.sign(
-      {
-        username: user.username,
+    const token = generateJwt(user.username, user.id);
+    let refreshToken;
+    if (req.body.refresh) {
+      refreshToken = await RefreshToken.create({
         userId: user.id
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h"
-      }
-    );
-    res.status(200).json({ token, userId: user.id });
+      });
+    }
 
-    // @todo: refer to: https://solidgeargroup.com/refresh-token-with-jwt-authentication-node-js/
-    // Here, we should also generate a refresh token. we're using this
-    // in a mobile app so it makes sense to be able to request a new
-    // access(jwt) token without re-entering the credentials
+    res.status(200).json({
+      token,
+      userId: user.id,
+      refreshToken: refreshToken ? refreshToken.token : undefined
+    });
   } catch (err) {
     next(handleError(err));
   }
+};
+
+const generateJwt = (username, userId) => {
+  return jwt.sign({ username, userId }, process.env.JWT_SECRET, {
+    expiresIn: "1h"
+  });
 };
