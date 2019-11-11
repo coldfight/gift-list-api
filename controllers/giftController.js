@@ -11,7 +11,7 @@ exports.getGifts = async (req, res, next) => {
         userId: req.user.id
       }
     });
-    res.json({ gifts });
+    res.json(gifts);
   } catch (err) {
     next(handleError(err));
   }
@@ -30,7 +30,7 @@ exports.getGift = async (req, res, next) => {
     if (!gift) {
       throw new HttpError("Gift does not exist");
     }
-    res.json({ gift });
+    res.json(gift);
   } catch (err) {
     next(handleError(err));
   }
@@ -64,9 +64,7 @@ exports.createGift = async (req, res, next) => {
       userId: req.user.id
     });
 
-    res.json({
-      gift: createdGift
-    });
+    res.json(createdGift);
   } catch (err) {
     next(handleError(err));
   }

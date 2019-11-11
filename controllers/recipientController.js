@@ -9,7 +9,7 @@ exports.getRecipients = async (req, res, next) => {
         userId: req.user.id
       }
     });
-    res.json({ recipients });
+    res.json(recipients);
   } catch (err) {
     next(handleError(err));
   }
@@ -28,7 +28,7 @@ exports.getRecipient = async (req, res, next) => {
     if (!recipient) {
       throw new HttpError("Recipient does not exist");
     }
-    res.json({ recipient });
+    res.json(recipient);
   } catch (err) {
     next(handleError(err));
   }
@@ -49,9 +49,7 @@ exports.createRecipient = async (req, res, next) => {
       userId: req.user.id
     });
 
-    res.json({
-      recipient: createdRecipient
-    });
+    res.json(createdRecipient);
   } catch (err) {
     next(handleError(err));
   }
