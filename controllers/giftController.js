@@ -38,6 +38,7 @@ exports.getGift = async (req, res, next) => {
 
 /**
  * @param req.body.name String The name of the gift
+ * @param req.body.price Integer The id of the recipient
  * @param req.body.recipientId Integer The id of the recipient
  */
 exports.createGift = async (req, res, next) => {
@@ -46,7 +47,7 @@ exports.createGift = async (req, res, next) => {
     return next(validationError);
   }
 
-  const { name, recipientId } = req.body;
+  const { name, price, recipientId } = req.body;
   try {
     // you can only set the recipientId IF the recipient's userId
     // is the authenticated user's id (req.user.id)
@@ -60,6 +61,7 @@ exports.createGift = async (req, res, next) => {
 
     const createdGift = await Gift.create({
       name,
+      price,
       recipientId,
       userId: req.user.id
     });

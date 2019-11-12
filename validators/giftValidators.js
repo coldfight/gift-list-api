@@ -6,6 +6,9 @@ module.exports = {
       .not()
       .isEmpty()
       .withMessage("You must provide the name of the gift"),
+    body("price")
+      .isNumeric()
+      .withMessage("You must provide a valid price"),
     body("recipientId")
       .not()
       .isEmpty()
