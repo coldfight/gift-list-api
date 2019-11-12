@@ -36,6 +36,7 @@ exports.getRecipient = async (req, res, next) => {
 
 /**
  * @param req.body.name String The name of the recipient
+ * @param req.body.spendLimit Number The max amount to spend for recipient
  */
 exports.createRecipient = async (req, res, next) => {
   const validationError = getValidationErrors(req);
@@ -44,8 +45,10 @@ exports.createRecipient = async (req, res, next) => {
   }
 
   try {
+    const { name, spendLimit } = req.body;
     const createdRecipient = await Recipient.create({
-      name: req.body.name,
+      name,
+      spendLimit,
       userId: req.user.id
     });
 
