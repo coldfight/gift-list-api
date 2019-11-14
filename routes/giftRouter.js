@@ -19,5 +19,11 @@ router.patch(
   validators.updateGift,
   giftController.updateGift
 );
+router.delete(
+  "/:id",
+  isAuthenticated,
+  giftController.deleteGift
+);
+
 
 module.exports = router;

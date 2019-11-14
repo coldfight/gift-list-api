@@ -1,3 +1,4 @@
+const HttpStatus = require("http-status-codes");
 const { handleError, getValidationErrors } = require("../libs/errorHandler");
 const Gift = require("../models/gift");
 const Recipient = require("../models/recipient");
@@ -66,7 +67,7 @@ exports.createGift = async (req, res, next) => {
       userId: req.user.id
     });
 
-    res.json(createdGift);
+    res.status(HttpStatus.CREATED).json(createdGift);
   } catch (err) {
     next(handleError(err));
   }
@@ -96,7 +97,7 @@ exports.updateGift = async (req, res, next) => {
       gift.price = req.body.price;
     }
     if (req.body.hasOwnProperty("bought")) {
-      console.log(`Update to ${req.body.bought}`)
+      console.log(`Update to ${req.body.bought}`);
       gift.bought = req.body.bought;
     }
 
@@ -105,28 +106,23 @@ exports.updateGift = async (req, res, next) => {
   } catch (err) {
     next(handleError(err));
   }
+};
 
-  // const { name, price, recipientId } = req.body;
-  // try {
-  //   // you can only set the recipientId IF the recipient's userId
-  //   // is the authenticated user's id (req.user.id)
-  //   const recipient = await Recipient.findOne({
-  //     where: { id: recipientId, userId: req.user.id }
-  //   });
+exports.deleteGift = async (req, res, next) => {
+  try {
+    const numDeleted = await Gift.destroy({
+      where: {
+        id: req.params.id,
+        userId: req.user.id
+      }
+    });
 
-  //   if (!recipient) {
-  //     return next(new HttpError("Recipient does not exist"));
-  //   }
+    if (numDeleted === 0) {
+      return next(new HttpError("Gift does not exist"));
+    }
 
-  //   const createdGift = await Gift.create({
-  //     name,
-  //     price,
-  //     recipientId,
-  //     userId: req.user.id
-  //   });
-
-  //   res.json(createdGift);
-  // } catch (err) {
-  //   next(handleError(err));
-  // }
+    res.status(HttpStatus.NO_CONTENT).json();
+  } catch (err) {
+    next(handleError(err));
+  }
 };
