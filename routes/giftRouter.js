@@ -13,5 +13,11 @@ router.post(
   validators.createGift,
   giftController.createGift
 );
+router.patch(
+  "/:id",
+  isAuthenticated,
+  validators.updateGift,
+  giftController.updateGift
+);
 
 module.exports = router;
