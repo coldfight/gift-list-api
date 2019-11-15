@@ -42,11 +42,5 @@ module.exports = {
       .not()
       .isEmpty()
       .withMessage("Refresh token is required.")
-  ],
-  deleteToken: [
-    body("refreshToken")
-      .not()
-      .isEmpty()
-      .withMessage("Refresh token is required.")
   ]
 };

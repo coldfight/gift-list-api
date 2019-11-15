@@ -89,6 +89,7 @@ exports.updateGift = async (req, res, next) => {
     if (!gift) {
       return next(new HttpError("Gift does not exist"));
     }
+    console.log("updating...", req.body);
 
     if (req.body.hasOwnProperty("name")) {
       gift.name = req.body.name;
@@ -97,7 +98,6 @@ exports.updateGift = async (req, res, next) => {
       gift.price = req.body.price;
     }
     if (req.body.hasOwnProperty("bought")) {
-      console.log(`Update to ${req.body.bought}`);
       gift.bought = req.body.bought;
     }
 

@@ -11,9 +11,8 @@ router.post("/signup", validators.signup, authController.signup);
 router.post("/login", validators.login, authController.login);
 router.post("/token", validators.token, authController.token);
 router.delete(
-  "/token",
+  "/token/:refreshToken",
   isAuthenticated,
-  validators.deleteToken,
   authController.deleteToken
 );
 

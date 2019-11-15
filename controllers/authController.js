@@ -5,6 +5,8 @@ const User = require("../models/user");
 const RefreshToken = require("../models/refreshToken");
 const UnauthorizedError = require("../libs/errors/unauthorizedError");
 
+const TOKEN_EXPIRY_SECONDS = 60 * 60;
+
 /**
  * @param req.body.username String
  * @param req.body.password String
@@ -25,7 +27,7 @@ exports.signup = async (req, res, next) => {
       password
     });
     const savedUser = await user.save();
-    const jwtToken = generateJwt(user.username, user.id);
+    const jwtToken = await generateJwt(user.username, user.id);
     let refreshTokenRecord;
     if (req.body.refresh) {
       refreshTokenRecord = await RefreshToken.create({
@@ -68,7 +70,7 @@ exports.login = async (req, res, next) => {
       return next(new UnauthorizedError("Incorrect credentials"));
     }
 
-    const jwtToken = generateJwt(user.username, user.id);
+    const jwtToken = await generateJwt(user.username, user.id);
     let refreshTokenRecord;
     if (req.body.refresh) {
       refreshTokenRecord = await RefreshToken.create({
@@ -108,11 +110,15 @@ exports.token = async (req, res, next) => {
       return next(new UnauthorizedError("Incorrect credentials"));
     }
 
-    const jwtToken = generateJwt(
+    const jwtToken = await generateJwt(
       refreshTokenRecord.user.username,
       refreshTokenRecord.user.id
     );
-    res.json({ token: jwtToken, userId: refreshTokenRecord.user.id });
+    res.json({
+      token: jwtToken,
+      userId: refreshTokenRecord.user.id,
+      refreshToken
+    });
   } catch (err) {
     next(handleError(err));
   }
@@ -128,7 +134,7 @@ exports.deleteToken = async (req, res, next) => {
     return next(validationError);
   }
 
-  const { refreshToken } = req.body;
+  const { refreshToken } = req.params;
 
   try {
     const refreshTokenRecord = await RefreshToken.getValidRefreshTokenForUser(
@@ -148,9 +154,19 @@ exports.deleteToken = async (req, res, next) => {
 };
 
 const generateJwt = (username, userId) => {
-  return jwt.sign({ username, userId }, process.env.JWT_SECRET, {
-    expiresIn: "1h"
+  return new Promise((resolve, reject) => {
+    jwt.sign(
+      { username, userId },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: TOKEN_EXPIRY_SECONDS
+      },
+      (err, token) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(token);
+      }
+    );
   });
 };
-
-
