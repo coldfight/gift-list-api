@@ -1,6 +1,7 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
+require("./libs/registerModelAssociations");
 
 const baseRouter = require("./routes");
 const { notFound, fallback } = require("./middleware/errors");
