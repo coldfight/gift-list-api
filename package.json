@@ -5,7 +5,8 @@
   "scripts": {
     "start": "cross-env ENV_FILE=production node -r ./env -r module-alias/register ./start.js",
     "start-dev": "nodemon --config \"./nodemon.json\"",
-    "gf": "cross-env ENV_FILE=development node -r ./env -r module-alias/register ./generateFixtures.js"
+    "gf": "cross-env ENV_FILE=development node -r ./env -r module-alias/register ./generateFixtures.js",
+    "test": "cross-env ENV_FILE=test mocha -r ./env test/**/*.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -21,14 +22,16 @@
     "module-alias": "^2.2.2",
     "morgan": "~1.9.1",
     "mysql2": "^2.0.0",
-    "passport": "^0.4.0",
-    "passport-jwt": "^4.0.0",
     "rand-token": "^0.4.0",
     "sequelize": "^5.21.2",
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "faker": "^4.1.0",
-    "nodemon": "^1.19.4"
+    "mocha": "^6.2.2",
+    "node-mocks-http": "^1.8.0",
+    "nodemon": "^1.19.4",
+    "sinon": "^7.5.0"
   }
 }

@@ -9,6 +9,5 @@ const database = new Sequelize(
     host: "localhost"
   }
 );
-console.log("db init")
 
 module.exports = database;

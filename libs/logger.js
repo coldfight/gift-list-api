@@ -33,6 +33,11 @@ if (process.env.NODE_ENV === "production") {
   });
   wintstonLogger.add(errTransport);
   wintstonLogger.add(infoTransport);
+} else if (process.env.NODE_ENV === "testing") {
+  const consoleTransport = new Console({
+    silent: true
+  });
+  wintstonLogger.add(consoleTransport);
 } else {
   const errorStackFormat = format(info => {
     if (info.stack) {
