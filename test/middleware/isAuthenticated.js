@@ -2,8 +2,8 @@ const chai = require("chai");
 const httpMocks = require("node-mocks-http");
 const sinon = require("sinon");
 const jwt = require("jsonwebtoken");
-const authMiddleware = require("../../middleware/isAuthenticated");
 const User = require("../../models/user");
+const authMiddleware = require("../../middleware/isAuthenticated");
 
 const expect = chai.expect;
 
