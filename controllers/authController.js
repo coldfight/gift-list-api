@@ -1,6 +1,5 @@
-const Sequelize = require("sequelize");
 const jwt = require("jsonwebtoken");
-const { handleError, getValidationErrors } = require("../libs/errorHandler");
+const errorHandler = require("../libs/errorHandler");
 const User = require("../models/user");
 const RefreshToken = require("../models/refreshToken");
 const UnauthorizedError = require("../libs/errors/unauthorizedError");
@@ -13,7 +12,7 @@ const TOKEN_EXPIRY_SECONDS = 60 * 60;
  * @param req.body.refresh boolean If set to true, the response will also return a refresh token
  */
 exports.signup = async (req, res, next) => {
-  const validationError = getValidationErrors(req);
+  const validationError = errorHandler.getValidationErrors(req);
   if (validationError) {
     return next(validationError);
   }
@@ -41,7 +40,7 @@ exports.signup = async (req, res, next) => {
       refreshToken: refreshTokenRecord ? refreshTokenRecord.token : undefined
     });
   } catch (err) {
-    next(handleError(err));
+    next(errorHandler.handleError(err));
   }
 };
 
@@ -51,7 +50,7 @@ exports.signup = async (req, res, next) => {
  * @param req.body.refresh boolean If set to true, the response will also return a refresh token
  */
 exports.login = async (req, res, next) => {
-  const validationError = getValidationErrors(req);
+  const validationError = errorHandler.getValidationErrors(req);
   if (validationError) {
     return next(validationError);
   }
@@ -63,7 +62,6 @@ exports.login = async (req, res, next) => {
     if (!user) {
       return next(new UnauthorizedError("Incorrect credentials"));
     }
-
     const isValidPassword = await user.isPasswordValid(password);
 
     if (!isValidPassword) {
@@ -84,7 +82,7 @@ exports.login = async (req, res, next) => {
       refreshToken: refreshTokenRecord ? refreshTokenRecord.token : undefined
     });
   } catch (err) {
-    next(handleError(err));
+    next(errorHandler.handleError(err));
   }
 };
 
@@ -93,7 +91,7 @@ exports.login = async (req, res, next) => {
  * @param req.body.refreshToken String
  */
 exports.token = async (req, res, next) => {
-  const validationError = getValidationErrors(req);
+  const validationError = errorHandler.getValidationErrors(req);
   if (validationError) {
     return next(validationError);
   }
@@ -120,7 +118,7 @@ exports.token = async (req, res, next) => {
       refreshToken
     });
   } catch (err) {
-    next(handleError(err));
+    next(errorHandler.handleError(err));
   }
 };
 
@@ -129,7 +127,7 @@ exports.token = async (req, res, next) => {
  * @param req.body.refreshToken String
  */
 exports.deleteToken = async (req, res, next) => {
-  const validationError = getValidationErrors(req);
+  const validationError = errorHandler.getValidationErrors(req);
   if (validationError) {
     return next(validationError);
   }
@@ -149,7 +147,7 @@ exports.deleteToken = async (req, res, next) => {
     await refreshTokenRecord.destroy();
     res.status(204).json();
   } catch (err) {
-    next(handleError(err));
+    next(errorHandler.handleError(err));
   }
 };
 

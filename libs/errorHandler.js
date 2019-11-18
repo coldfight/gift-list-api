@@ -9,7 +9,7 @@ exports.handleError = err => {
     return err;
   }
 
-  const error = new Error("There was an issue pulling the list of gifts.");
+  const error = new Error("There was an issue.");
   error.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
   return error;
 };
