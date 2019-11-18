@@ -1,10 +1,9 @@
-const jwt = require("jsonwebtoken");
 const errorHandler = require("../libs/errorHandler");
 const User = require("../models/user");
 const RefreshToken = require("../models/refreshToken");
 const UnauthorizedError = require("../libs/errors/unauthorizedError");
+const helper = require("../libs/helper");
 
-const TOKEN_EXPIRY_SECONDS = 60 * 60;
 
 /**
  * @param req.body.username String
@@ -26,7 +25,7 @@ exports.signup = async (req, res, next) => {
       password
     });
     const savedUser = await user.save();
-    const jwtToken = await generateJwt(user.username, user.id);
+    const jwtToken = await helper.generateJwt(user.username, user.id);
     let refreshTokenRecord;
     if (req.body.refresh) {
       refreshTokenRecord = await RefreshToken.create({
@@ -68,7 +67,7 @@ exports.login = async (req, res, next) => {
       return next(new UnauthorizedError("Incorrect credentials"));
     }
 
-    const jwtToken = await generateJwt(user.username, user.id);
+    const jwtToken = await helper.generateJwt(user.username, user.id);
     let refreshTokenRecord;
     if (req.body.refresh) {
       refreshTokenRecord = await RefreshToken.create({
@@ -108,7 +107,7 @@ exports.token = async (req, res, next) => {
       return next(new UnauthorizedError("Incorrect credentials"));
     }
 
-    const jwtToken = await generateJwt(
+    const jwtToken = await helper.generateJwt(
       refreshTokenRecord.user.username,
       refreshTokenRecord.user.id
     );
@@ -149,22 +148,4 @@ exports.deleteToken = async (req, res, next) => {
   } catch (err) {
     next(errorHandler.handleError(err));
   }
-};
-
-const generateJwt = (username, userId) => {
-  return new Promise((resolve, reject) => {
-    jwt.sign(
-      { username, userId },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: TOKEN_EXPIRY_SECONDS
-      },
-      (err, token) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(token);
-      }
-    );
-  });
 };
