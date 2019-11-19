@@ -1,74 +1,183 @@
 const chai = require("chai");
-const httpMocks = require("node-mocks-http");
-const sinon = require("sinon");
-const errorHandler = require("../../libs/errorHandler");
+const chaiHttp = require("chai-http");
 const User = require("../../models/user");
-const authController = require("../../controllers/authController");
+const sequelize = require("../../libs/database");
 
 const expect = chai.expect;
-
-// good reference resource: https://sinonjs.org/releases/latest/stubs/
+chai.use(chaiHttp);
 
 describe("controllers/authController", () => {
+  let server;
+  before(() => {
+    server = require("../../server");
+  });
+  after(() => {
+    server.close();
+  });
+  beforeEach(async () => {
+    await sequelize.sync({ force: true });
+  });
+
   describe("login()", () => {
     it("should return an error if validation errors exist", async () => {
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
+      const res = await chai.request(server).post("/api/auth/login");
 
-      const error = new Error("Test Error");
-      error.statusCode = 403;
-      sinon.stub(errorHandler, "getValidationErrors").returns(error);
-      const next = sinon.spy();
-
-      await authController.login(req, res, next);
-      expect(next.called).to.be.true;
-      expect(next.args[0].length).to.equal(1);
-      expect(next.args[0][0].statusCode).to.equal(403);
-      expect(next.args[0][0].message).to.equal("Test Error");
-
-      errorHandler.getValidationErrors.restore();
+      expect(res.statusCode).to.equal(422);
+      expect(res.body).to.have.property("message", "Validation failed.");
+      expect(res.body.data)
+        .to.be.an("array")
+        .with.length.greaterThan(0);
+      expect(res.body.data.map(e => e.param)).to.have.members([
+        "password",
+        "username"
+      ]);
+      expect(res.error).not.to.be.false;
     });
 
     it("should return an error if user does not exist", async () => {
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
+      const res = await chai
+        .request(server)
+        .post("/api/auth/login")
+        .type("application/json")
+        .send({ username: "fake", password: "fake" });
 
-      sinon.stub(errorHandler, "getValidationErrors").returns(false);
-      const next = sinon.spy();
-
-      sinon.stub(User, "findOne").returns(null);
-
-      await authController.login(req, res, next);
-      expect(next.called).to.be.true;
-      expect(next.args[0].length).to.equal(1);
-      expect(next.args[0][0].statusCode).to.equal(401);
-      expect(next.args[0][0].message).to.equal("Incorrect credentials");
-
-      errorHandler.getValidationErrors.restore();
-      User.findOne.restore();
+      expect(res.statusCode).to.equal(401);
+      expect(res.body).to.have.property("message", "Incorrect credentials");
+      expect(res.error).not.to.be.false;
     });
 
-    it("should return an error if invalid password", async () => {
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-
-      sinon.stub(errorHandler, "getValidationErrors").returns(false);
-      const next = sinon.spy();
-
-      const userStub = sinon.createStubInstance(User, {
-        isPasswordValid: sinon.stub().returns(false)
+    it("should return an error if user exists but incorrect password", async () => {
+      // Fixtures
+      await User.create({
+        username: "coldfight",
+        password: "thisismypassword"
       });
-      sinon.stub(User, "findOne").returns(userStub);
 
-      await authController.login(req, res, next);
-      expect(next.called).to.be.true;
-      expect(next.args[0].length).to.equal(1);
-      expect(next.args[0][0].statusCode).to.equal(401);
-      expect(next.args[0][0].message).to.equal("Incorrect credentials");
+      const res = await chai
+        .request(server)
+        .post("/api/auth/login")
+        .type("application/json")
+        .send({ username: "coldfight", password: "wrong password" });
 
-      errorHandler.getValidationErrors.restore();
-      User.findOne.restore();
-      userStub.restore();
+      expect(res.statusCode).to.equal(401);
+      expect(res.body).to.have.property("message", "Incorrect credentials");
+      expect(res.error).not.to.be.false;
+    });
+
+    it("should authenticate user and return JWT token", async () => {
+      // Fixtures
+      await User.create({
+        username: "coldfight",
+        password: "thisismypassword"
+      });
+
+      const res = await chai
+        .request(server)
+        .post("/api/auth/login")
+        .type("application/json")
+        .send({ username: "coldfight", password: "thisismypassword" });
+
+      expect(res.statusCode).to.equal(200);
+      expect(res.body)
+        .to.have.property("token")
+        .that.is.a("string");
+      expect(res.body)
+        .not.to.have.property("refreshToken")
+        .that.is.a("string");
+      expect(res.error).to.be.false;
+    });
+
+    it("should authenticate user and return both tokens", async () => {
+      // Fixtures
+      await User.create({
+        username: "coldfight",
+        password: "thisismypassword"
+      });
+
+      const res = await chai
+        .request(server)
+        .post("/api/auth/login")
+        .type("application/json")
+        .send({
+          username: "coldfight",
+          password: "thisismypassword",
+          refresh: true
+        });
+
+      expect(res.statusCode).to.equal(200);
+      expect(res.body)
+        .to.have.property("token")
+        .that.is.a("string");
+      expect(res.body)
+        .to.have.property("refreshToken")
+        .that.is.a("string");
+      expect(res.error).to.be.false;
+    });
+  });
+
+  describe("signup()", () => {
+    it("should return an error if validation errors exist", async () => {
+      const res = await chai.request(server).post("/api/auth/signup");
+
+      expect(res.statusCode).to.equal(422);
+      expect(res.body).to.have.property("message", "Validation failed.");
+      expect(res.body.data)
+        .to.be.an("array")
+        .with.length.greaterThan(0);
+      expect(
+        res.body.data
+          .map(e => e.param) // map to property names
+          .filter((v, i, a) => a.indexOf(v) === i) // remove duplicates
+      ).to.have.members(["password", "username"]);
+      expect(res.error).not.to.be.false;
+    });
+
+    it("should return an error if user alreaday exists", async () => {
+      // Fixtures
+      await User.create({
+        username: "coldfight",
+        password: "thisismypassword"
+      });
+
+      const res = await chai
+        .request(server)
+        .post("/api/auth/signup")
+        .type("application/json")
+        .send({ username: "coldfight", password: "wrong password" });
+
+      expect(res.statusCode).to.equal(422);
+      expect(res.body).to.have.property("message", "Validation failed.");
+      expect(res.body.data)
+        .to.be.an("array")
+        .with.length.greaterThan(0);
+      expect(res.body.data.map(e => e.msg)).to.have.members([
+        "User already exists."
+      ]);
+      expect(res.error).not.to.be.false;
+    });
+
+    it("should create and authenticate user and return both tokens", async () => {
+      const res = await chai
+        .request(server)
+        .post("/api/auth/signup")
+        .type("application/json")
+        .send({
+          username: "coldfight",
+          password: "thisismypassword",
+          refresh: true
+        });
+
+      expect(res.statusCode).to.equal(201);
+      expect(res.body)
+        .to.have.property("token")
+        .that.is.a("string");
+      expect(res.body)
+        .to.have.property("refreshToken")
+        .that.is.a("string");
+      expect(res.body)
+        .to.have.property("userId")
+        .that.is.a("number");
+      expect(res.error).to.be.false;
     });
   });
 });

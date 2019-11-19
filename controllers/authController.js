@@ -4,7 +4,6 @@ const RefreshToken = require("../models/refreshToken");
 const UnauthorizedError = require("../libs/errors/unauthorizedError");
 const helper = require("../libs/helper");
 
-
 /**
  * @param req.body.username String
  * @param req.body.password String
@@ -24,6 +23,7 @@ exports.signup = async (req, res, next) => {
       username,
       password
     });
+
     const savedUser = await user.save();
     const jwtToken = await helper.generateJwt(user.username, user.id);
     let refreshTokenRecord;
@@ -61,6 +61,7 @@ exports.login = async (req, res, next) => {
     if (!user) {
       return next(new UnauthorizedError("Incorrect credentials"));
     }
+
     const isValidPassword = await user.isPasswordValid(password);
 
     if (!isValidPassword) {
