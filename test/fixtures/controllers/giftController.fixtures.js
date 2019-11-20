@@ -23,7 +23,7 @@ exports.set1 = async () => {
     })
   ]);
 
-  await Promise.all([
+  const [gift1, gift2, gift3, gift4] = await Promise.all([
     user1.createGift({
       id: 1,
       name: "Gift A",
@@ -53,5 +53,5 @@ exports.set1 = async () => {
       recipientId: recipient2.id
     })
   ]);
-  return { user1, recipient1, recipient2 };
+  return { user1, user2, recipient1, recipient2, gift1, gift2, gift3, gift4 };
 };

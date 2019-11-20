@@ -90,7 +90,6 @@ exports.updateGift = async (req, res, next) => {
     if (!gift) {
       return next(new HttpError("Gift does not exist"));
     }
-    console.log("updating...", req.body);
 
     if (req.body.hasOwnProperty("name")) {
       gift.name = req.body.name;
