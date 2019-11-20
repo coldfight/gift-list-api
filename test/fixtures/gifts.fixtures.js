@@ -1,4 +1,4 @@
-const User = require("../../../models/user");
+const User = require("../../models/user");
 
 exports.set1 = async () => {
   const [user1, user2] = await Promise.all([

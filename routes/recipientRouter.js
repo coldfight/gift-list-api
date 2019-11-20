@@ -13,5 +13,12 @@ router.post(
   validators.createRecipient,
   recipientController.createRecipient
 );
+router.patch(
+  "/:id",
+  isAuthenticated,
+  validators.updateRecipient,
+  recipientController.updateRecipient
+);
+router.delete("/:id", isAuthenticated, recipientController.deleteRecipient);
 
 module.exports = router;

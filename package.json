@@ -7,7 +7,7 @@
     "start-dev": "nodemon --config \"./nodemon.json\"",
     "gf": "cross-env ENV_FILE=development node -r ./env -r module-alias/register ./generateFixtures.js",
     "test:all": "cross-env ENV_FILE=test mocha -r ./env test/**/*.test.js",
-    "test": "cross-env ENV_FILE=test mocha -r ./env test/controllers/giftController.test.js"
+    "test": "cross-env ENV_FILE=test mocha -r ./env test/controllers/recipientController.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

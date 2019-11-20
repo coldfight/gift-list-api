@@ -4,7 +4,7 @@ const sinon = require("sinon");
 const chaiHttp = require("chai-http");
 const User = require("../../models/user");
 const sequelize = require("../../libs/database");
-const fixtures = require("../fixtures/controllers/giftController.fixtures");
+const fixtures = require("../fixtures/gifts.fixtures");
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -21,7 +21,7 @@ describe("controllers/giftController", () => {
     await sequelize.sync({ force: true });
   });
 
-  xdescribe("GET /api/gifts", () => {
+  describe("GET /api/gifts", () => {
     it("returns an error if user is not authenticated", async () => {
       const res = await chai.request(server).get("/api/gifts");
       expect(res.statusCode).to.equal(401);
@@ -58,7 +58,7 @@ describe("controllers/giftController", () => {
     });
   });
 
-  xdescribe("GET /api/gifts/:id", () => {
+  describe("GET /api/gifts/:id", () => {
     it("returns an error if user is not authenticated", async () => {
       const res = await chai.request(server).get("/api/gifts/1");
       expect(res.statusCode).to.equal(401);
@@ -107,7 +107,7 @@ describe("controllers/giftController", () => {
     });
   });
 
-  xdescribe("POST /api/gifts", () => {
+  describe("POST /api/gifts", () => {
     it("returns an error if user is not authenticated", async () => {
       const res = await chai.request(server).post("/api/gifts");
       expect(res.statusCode).to.equal(401);
@@ -203,7 +203,7 @@ describe("controllers/giftController", () => {
     });
   });
 
-  xdescribe("PATCH /api/gifts/:id", () => {
+  describe("PATCH /api/gifts/:id", () => {
     it("returns an error if user is not authenticated", async () => {
       const res = await chai.request(server).patch("/api/gifts/1");
       expect(res.statusCode).to.equal(401);

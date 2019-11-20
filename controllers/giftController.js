@@ -76,6 +76,8 @@ exports.createGift = async (req, res, next) => {
 
 /**
  * @param req.body.name String The name of the gift
+ * @param req.body.price Number The price of the gift
+ * @param req.body.bought Boolean Whether or not the gift is bought
  */
 exports.updateGift = async (req, res, next) => {
   const validationError = getValidationErrors(req);

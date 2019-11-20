@@ -1,3 +1,4 @@
+const HttpStatus = require("http-status-codes");
 const { handleError, getValidationErrors } = require("../libs/errorHandler");
 const Recipient = require("../models/recipient");
 const HttpError = require("../libs/errors/httpError");
@@ -52,7 +53,54 @@ exports.createRecipient = async (req, res, next) => {
       userId: req.user.id
     });
 
-    res.json(createdRecipient);
+    res.status(HttpStatus.CREATED).json(createdRecipient);
+  } catch (err) {
+    next(handleError(err));
+  }
+};
+
+/**
+ * @param req.body.name String The name of the recipient
+ */
+exports.updateRecipient = async (req, res, next) => {
+  const validationError = getValidationErrors(req);
+  if (validationError) {
+    return next(validationError);
+  }
+  try {
+    let recipient = await Recipient.findOne({
+      where: { id: req.params.id, userId: req.user.id }
+    });
+
+    if (!recipient) {
+      return next(new HttpError("Recipient does not exist"));
+    }
+
+    if (req.body.hasOwnProperty("name")) {
+      recipient.name = req.body.name;
+    }
+
+    recipient = await recipient.save();
+    res.json(recipient);
+  } catch (err) {
+    next(handleError(err));
+  }
+};
+
+exports.deleteRecipient = async (req, res, next) => {
+  try {
+    const numDeleted = await Recipient.destroy({
+      where: {
+        id: req.params.id,
+        userId: req.user.id
+      }
+    });
+
+    if (numDeleted === 0) {
+      return next(new HttpError("Recipient does not exist"));
+    }
+
+    res.status(HttpStatus.NO_CONTENT).json();
   } catch (err) {
     next(handleError(err));
   }
