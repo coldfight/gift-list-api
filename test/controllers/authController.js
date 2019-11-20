@@ -180,4 +180,10 @@ describe("controllers/authController", () => {
       expect(res.error).to.be.false;
     });
   });
+
+  describe("token()", () => {
+    it("returns a new JWT token", async() => {
+      expect(false).to.equal(true, "Needs to be tested still")
+    })
+  });
 });
