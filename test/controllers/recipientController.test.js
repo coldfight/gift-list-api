@@ -21,7 +21,7 @@ describe("controllers/recipientController", () => {
     await sequelize.sync({ force: true });
   });
 
-  xdescribe("GET /api/recipients", () => {
+  describe("GET /api/recipients", () => {
     it("returns an error if user is not authenticated", async () => {
       const res = await chai.request(server).get("/api/recipients");
       expect(res.statusCode).to.equal(401);
@@ -58,7 +58,7 @@ describe("controllers/recipientController", () => {
     });
   });
 
-  xdescribe("GET /api/recipients/:id", () => {
+  describe("GET /api/recipients/:id", () => {
     it("returns an error if user is not authenticated", async () => {
       const res = await chai.request(server).get("/api/recipients/1");
       expect(res.statusCode).to.equal(401);
@@ -107,7 +107,7 @@ describe("controllers/recipientController", () => {
     });
   });
 
-  xdescribe("POST /api/recipients", () => {
+  describe("POST /api/recipients", () => {
     it("returns an error if user is not authenticated", async () => {
       const res = await chai.request(server).post("/api/recipients");
       expect(res.statusCode).to.equal(401);
@@ -166,7 +166,7 @@ describe("controllers/recipientController", () => {
     });
   });
 
-  xdescribe("PATCH /api/recipients/:id", () => {
+  describe("PATCH /api/recipients/:id", () => {
     it("returns an error if user is not authenticated", async () => {
       const res = await chai.request(server).patch("/api/recipients/1");
       expect(res.statusCode).to.equal(401);
