@@ -53,5 +53,5 @@ exports.set1 = async () => {
       recipientId: recipient2.id
     })
   ]);
-  return { user1 };
+  return { user1, recipient1, recipient2 };
 };

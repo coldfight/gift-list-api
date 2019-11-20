@@ -3,6 +3,7 @@ const { handleError, getValidationErrors } = require("../libs/errorHandler");
 const Gift = require("../models/gift");
 const Recipient = require("../models/recipient");
 const HttpError = require("../libs/errors/httpError");
+const BadRequestError = require("../libs/errors/badRequestError");
 
 exports.getGifts = async (req, res, next) => {
   try {
@@ -57,7 +58,7 @@ exports.createGift = async (req, res, next) => {
     });
 
     if (!recipient) {
-      return next(new HttpError("Recipient does not exist"));
+      return next(new BadRequestError("Recipient does not exist."));
     }
 
     const createdGift = await Gift.create({

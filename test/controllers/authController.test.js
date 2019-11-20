@@ -9,7 +9,7 @@ chai.use(chaiHttp);
 describe("controllers/authController", () => {
   let server;
   before(() => {
-    server = require("../../server");
+    server = require("../testServer");
   });
   after(() => {
     server.close();
