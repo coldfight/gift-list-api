@@ -1,15 +1,38 @@
+const Op = require("sequelize").Op;
 const HttpStatus = require("http-status-codes");
 const { handleError, getValidationErrors } = require("../libs/errorHandler");
 const Recipient = require("../models/recipient");
+const Gift = require("../models/gift");
 const HttpError = require("../libs/errors/httpError");
+
+function extractIds(ids) {
+  if (ids) {
+    return ids.split(",").map(id => parseInt(id));
+  }
+  return null;
+}
 
 exports.getRecipients = async (req, res, next) => {
   try {
-    const recipients = await Recipient.findAll({
-      where: {
+    const ids = extractIds(req.query.ids);
+
+    let where;
+    if (!ids) {
+      where = {
         userId: req.user.id
-      }
+      };
+    } else {
+      where = {
+        [Op.and]: [{ userId: req.user.id }, { id: { [Op.in]: ids } }]
+      };
+    }
+
+    const recipients = await Recipient.findAll({
+      where,
+      include: [{ model: Gift }]
     });
+
+    // @todo: Add test for this
     res.json(recipients);
   } catch (err) {
     next(handleError(err));
@@ -24,7 +47,8 @@ exports.getRecipient = async (req, res, next) => {
       where: {
         id: recipientId,
         userId: req.user.id
-      }
+      },
+      include: [{ model: Gift }]
     });
     if (!recipient) {
       throw new HttpError("Recipient does not exist");

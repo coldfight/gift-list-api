@@ -11,7 +11,8 @@ exports.getGifts = async (req, res, next) => {
     const gifts = await Gift.findAll({
       where: {
         userId: req.user.id
-      }
+      },
+      include: [{ model: Recipient }]
     });
     res.json(gifts);
   } catch (err) {
@@ -27,7 +28,8 @@ exports.getGift = async (req, res, next) => {
       where: {
         id: giftId,
         userId: req.user.id
-      }
+      },
+      include: [{ model: Recipient }]
     });
     if (!gift) {
       throw new HttpError("Gift does not exist");
@@ -104,6 +106,7 @@ exports.updateGift = async (req, res, next) => {
     }
 
     gift = await gift.save();
+    await gift.reload({ include: [{ model: Recipient }] });
     res.json(gift);
   } catch (err) {
     next(handleError(err));

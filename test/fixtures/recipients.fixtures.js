@@ -55,3 +55,34 @@ exports.set1 = async () => {
   ]);
   return { user1, user2, recipient1, recipient2, gift1, gift2, gift3, gift4 };
 };
+
+exports.set2 = async () => {
+  const [user1, user2] = await Promise.all([
+    User.create({
+      id: 1,
+      username: "coldfight",
+      password: "thisismypassword"
+    }),
+    User.create({
+      id: 2,
+      username: "amedeo",
+      password: "thisismypassword"
+    })
+  ]);
+
+  const [recipient1, recipient2, recipient3, recipient4] = await Promise.all([
+    user1.createRecipient({
+      name: "Recipient A"
+    }),
+    user2.createRecipient({
+      name: "Recipient B"
+    }),
+    user1.createRecipient({
+      name: "Recipient C"
+    }),
+    user2.createRecipient({
+      name: "Recipient D"
+    })
+  ]);
+  return { user1, user2, recipient1, recipient2, recipient3, recipient4 };
+};

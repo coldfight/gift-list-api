@@ -56,6 +56,40 @@ describe("controllers/recipientController", () => {
 
       jwt.verify.restore();
     });
+
+    it("should only return list of recipients specified by ID for authenticated user", async () => {
+      // Fixtures
+      const {
+        user1,
+        recipient1,
+        recipient2,
+        recipient3,
+        recipient4
+      } = await fixtures.set2();
+
+      // Stub out jwt.verify()
+      sinon.stub(jwt, "verify");
+      jwt.verify.returns({
+        userId: user1.id
+      });
+
+      const res = await chai
+        .request(server)
+        .get(
+          `/api/recipients?ids=${recipient1.id},${recipient2.id},${recipient4.id}`
+        )
+        .set("Authorization", "Bearer JWT_TOKEN");
+
+      expect(res.body).to.be.an("array");
+      expect(res.body)
+        .to.be.an("array")
+        .with.lengthOf(1);
+      expect(
+        res.body.map(r => r.id)
+      ).to.have.members([1]);
+
+      jwt.verify.restore();
+    });
   });
 
   describe("GET /api/recipients/:id", () => {
