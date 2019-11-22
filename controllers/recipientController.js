@@ -103,6 +103,9 @@ exports.updateRecipient = async (req, res, next) => {
     if (req.body.hasOwnProperty("name")) {
       recipient.name = req.body.name;
     }
+    if (req.body.hasOwnProperty("spendLimit")) {
+      recipient.spendLimit = req.body.spendLimit;
+    }
 
     recipient = await recipient.save();
     res.json(recipient);
